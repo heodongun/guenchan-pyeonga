@@ -44,19 +44,22 @@ export default function Signup() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <div className="w-full max-w-md">
-        <h1 className="text-4xl font-bold mb-8 text-center">회원가입</h1>
+    <main className="min-h-screen flex items-center justify-center p-5 bg-toss-bg">
+      <div className="w-full max-w-[400px]">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-toss-text mb-2">회원가입</h1>
+          <p className="text-gray-500">새로운 시작을 함께해요.</p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm font-medium">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <form onSubmit={handleSubmit} className="toss-card">
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="email" className="block text-toss-text text-sm font-semibold mb-2">
               이메일
             </label>
             <input
@@ -65,13 +68,13 @@ export default function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
               placeholder="이메일을 입력하세요"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+            <label htmlFor="password" className="block text-toss-text text-sm font-semibold mb-2">
               비밀번호
             </label>
             <input
@@ -81,13 +84,13 @@ export default function Signup() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
               placeholder="비밀번호를 입력하세요 (최소 6자)"
             />
           </div>
 
-          <div className="mb-6">
-            <label htmlFor="nickname" className="block text-gray-700 text-sm font-bold mb-2">
+          <div className="mb-8">
+            <label htmlFor="nickname" className="block text-toss-text text-sm font-semibold mb-2">
               닉네임
             </label>
             <input
@@ -96,31 +99,32 @@ export default function Signup() {
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
               required
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
               placeholder="닉네임을 입력하세요"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-300"
-            >
-              {loading ? '가입 중...' : '회원가입'}
-            </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full toss-button py-4 text-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            {loading ? '가입 중...' : '회원가입'}
+          </button>
+
+          <div className="mt-6 text-center">
             <Link
               href="/auth/login"
-              className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
+              className="text-sm text-gray-500 hover:text-toss-blue transition-colors"
             >
-              로그인
+              이미 계정이 있으신가요? 로그인
             </Link>
           </div>
         </form>
 
-        <div className="text-center">
-          <Link href="/" className="text-blue-500 hover:underline">
-            홈으로
+        <div className="text-center mt-8">
+          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            ← 홈으로 돌아가기
           </Link>
         </div>
       </div>

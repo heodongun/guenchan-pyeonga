@@ -48,68 +48,66 @@ export default function NewArticle() {
   };
 
   return (
-    <main className="min-h-screen p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <Link href="/" className="text-blue-500 hover:underline">
-          ← 목록으로
-        </Link>
-      </div>
-
-      <h1 className="text-4xl font-bold mb-8">글쓰기</h1>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-2">
-            제목
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="제목을 입력하세요"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-2">
-            내용
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-            rows={10}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="내용을 입력하세요"
-          />
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300"
-          >
-            {loading ? '작성 중...' : '작성하기'}
-          </button>
-          <Link
-            href="/"
-            className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-          >
-            취소
+    <main className="min-h-screen p-5 bg-toss-bg">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            ← 취소하고 돌아가기
           </Link>
         </div>
-      </form>
+
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-toss-text">글쓰기</h1>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm font-medium">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="toss-card">
+          <div className="mb-6">
+            <label htmlFor="title" className="block text-toss-text text-sm font-semibold mb-2">
+              제목
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 text-lg font-medium"
+              placeholder="제목을 입력하세요"
+            />
+          </div>
+
+          <div className="mb-8">
+            <label htmlFor="content" className="block text-toss-text text-sm font-semibold mb-2">
+              내용
+            </label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+              rows={15}
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 resize-none"
+              placeholder="내용을 입력하세요"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 toss-button py-4 text-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              {loading ? '작성 중...' : '작성하기'}
+            </button>
+          </div>
+        </form>
+      </div>
     </main>
   );
 }

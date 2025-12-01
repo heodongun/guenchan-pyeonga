@@ -164,26 +164,26 @@ export default function ArticleDetail() {
     return (
       <div
         key={comment.id}
-        className={`border-l-2 ${comment.depth > 0 ? 'ml-8 mt-2' : 'mt-4'}`}
+        className={`${comment.depth > 0 ? 'ml-6 pl-4 border-l-2 border-gray-100' : ''} mt-4`}
       >
-        <div className="pl-4 py-2">
+        <div className="py-2">
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-sm">
+            <span className="font-bold text-sm text-toss-text">
               {comment.isDeleted ? '알 수 없음' : comment.authorNickname}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-400">
               {new Date(comment.createdAt).toLocaleString()}
             </span>
           </div>
-          <p className="text-gray-800 mb-2">
+          <p className="text-gray-700 mb-2 text-sm leading-relaxed">
             {comment.isDeleted ? '삭제된 댓글입니다.' : comment.content}
           </p>
           {!comment.isDeleted && (
             <button
               onClick={() => setReplyTo(comment.id)}
-              className="text-xs text-blue-500 hover:underline"
+              className="text-xs text-toss-gray hover:text-toss-blue font-medium transition-colors"
             >
-              답글
+              답글 달기
             </button>
           )}
         </div>
@@ -194,91 +194,101 @@ export default function ArticleDetail() {
 
   if (loading) {
     return (
-      <main className="min-h-screen p-8 max-w-4xl mx-auto">
-        <p>로딩 중...</p>
+      <main className="min-h-screen p-5 bg-toss-bg flex items-center justify-center">
+        <p className="text-gray-500">로딩 중...</p>
       </main>
     );
   }
 
   if (error || !article) {
     return (
-      <main className="min-h-screen p-8 max-w-4xl mx-auto">
-        <p className="text-red-500">{error || '게시글을 찾을 수 없습니다.'}</p>
-        <Link href="/" className="text-blue-500 hover:underline">
-          목록으로
-        </Link>
+      <main className="min-h-screen p-5 bg-toss-bg flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">{error || '게시글을 찾을 수 없습니다.'}</p>
+          <Link href="/" className="text-toss-blue hover:underline">
+            목록으로 돌아가기
+          </Link>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <Link href="/" className="text-blue-500 hover:underline">
-          ← 목록으로
-        </Link>
-      </div>
-
-      <article className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-6 pb-4 border-b">
-          <span>{article.authorNickname}</span>
-          <span>조회 {article.viewCount}</span>
-          <span>{new Date(article.createdAt).toLocaleString()}</span>
+    <main className="min-h-screen p-5 bg-toss-bg pb-20">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            ← 목록으로
+          </Link>
         </div>
-        <div className="prose max-w-none mb-6">
-          <p className="whitespace-pre-wrap">{article.content}</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            삭제
-          </button>
-        </div>
-      </article>
 
-      <section className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold mb-4">댓글 {comments.length}개</h2>
+        <article className="toss-card mb-6">
+          <h1 className="text-2xl font-bold mb-4 text-toss-text leading-tight">{article.title}</h1>
+          <div className="flex items-center gap-3 text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">
+            <span className="font-medium text-gray-700">{article.authorNickname}</span>
+            <span className="text-gray-300">|</span>
+            <span>{new Date(article.createdAt).toLocaleString()}</span>
+            <span className="text-gray-300">|</span>
+            <span>조회 {article.viewCount}</span>
+          </div>
+          <div className="prose max-w-none mb-8 text-gray-800 leading-relaxed">
+            <p className="whitespace-pre-wrap">{article.content}</p>
+          </div>
 
-        <form onSubmit={handleSubmitComment} className="mb-6">
-          {replyTo && (
-            <div className="mb-2 text-sm text-gray-600">
-              답글 작성 중...{' '}
+          {/* Only show delete if user is author - logic handled by backend but UI can be improved later with user context */}
+          <div className="flex justify-end border-t border-gray-100 pt-6">
+            <button
+              onClick={handleDelete}
+              className="text-red-500 text-sm hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+            >
+              삭제하기
+            </button>
+          </div>
+        </article>
+
+        <section className="toss-card">
+          <h2 className="text-lg font-bold mb-6 text-toss-text">댓글 <span className="text-toss-blue">{comments.length}</span></h2>
+
+          <form onSubmit={handleSubmitComment} className="mb-8 bg-gray-50 p-4 rounded-xl">
+            {replyTo && (
+              <div className="mb-3 text-sm text-gray-600 flex justify-between items-center bg-white px-3 py-2 rounded-lg border border-gray-100">
+                <span>답글 작성 중...</span>
+                <button
+                  type="button"
+                  onClick={() => setReplyTo(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="댓글을 남겨보세요"
+                rows={1}
+                className="flex-1 px-4 py-3 border-none rounded-xl focus:ring-0 bg-transparent resize-none placeholder-gray-400 text-toss-text"
+                required
+              />
               <button
-                type="button"
-                onClick={() => setReplyTo(null)}
-                className="text-blue-500 hover:underline"
+                type="submit"
+                className="bg-toss-blue text-white px-4 py-2 rounded-xl font-medium hover:bg-blue-600 transition-colors whitespace-nowrap h-fit self-end"
               >
-                취소
+                등록
               </button>
             </div>
-          )}
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="댓글을 입력하세요"
-            rows={3}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-            required
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {replyTo ? '답글 작성' : '댓글 작성'}
-          </button>
-        </form>
+          </form>
 
-        <div className="space-y-2">
-          {comments.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">댓글이 없습니다.</p>
-          ) : (
-            comments.map((comment) => renderComment(comment))
-          )}
-        </div>
-      </section>
+          <div className="space-y-1">
+            {comments.length === 0 ? (
+              <p className="text-gray-400 text-center py-8">첫 번째 댓글을 남겨보세요.</p>
+            ) : (
+              comments.map((comment) => renderComment(comment))
+            )}
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

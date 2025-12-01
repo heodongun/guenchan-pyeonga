@@ -55,7 +55,6 @@ export default function Home() {
 
   useEffect(() => {
     fetchArticles();
-    // Load user from localStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -76,97 +75,122 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-8 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">게시판</h1>
-        <div className="flex items-center gap-4">
-          {user ? (
-            <>
-              <span className="text-gray-700">환영합니다, {user.nickname}님</span>
-              <button
-                onClick={handleLogout}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                로그아웃
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/auth/login"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                로그인
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              >
-                회원가입
-              </Link>
-            </>
-          )}
+    <div className="min-h-screen pb-20">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-toss-text">게시판</h1>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600 hidden sm:inline">{user.nickname}님</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Link
+                  href="/auth/login"
+                  className="text-sm text-gray-600 hover:text-toss-blue transition-colors"
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="text-sm bg-toss-blue text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  회원가입
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="mb-4">
+      <main className="max-w-2xl mx-auto px-5 pt-6">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-toss-text mb-2">
+            안녕하세요,<br />
+            오늘의 이야기를 들려주세요.
+          </h2>
+        </div>
+
+        {/* Article List */}
+        <div className="space-y-4">
+          {articles.map((article) => (
+            <Link
+              key={article.id}
+              href={`/articles/${article.id}`}
+              className="block toss-card hover:scale-[1.02] transition-transform duration-200 active:scale-[0.98]"
+            >
+              <h3 className="text-lg font-bold text-toss-text mb-2 line-clamp-1">
+                {article.title}
+              </h3>
+              <div className="flex items-center text-sm text-gray-500 gap-2">
+                <span>{article.authorNickname}</span>
+                <span>·</span>
+                <span>{new Date(article.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-sm text-gray-400">
+                <span className="flex items-center gap-1">
+                  👁️ {article.viewCount}
+                </span>
+                <span className="flex items-center gap-1">
+                  💬 {article.commentCount}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Loading / Empty States */}
+        {loading && (
+          <div className="py-8 text-center text-gray-500">
+            로딩 중...
+          </div>
+        )}
+
+        {!loading && articles.length === 0 && (
+          <div className="py-20 text-center text-gray-400">
+            아직 게시글이 없어요.
+          </div>
+        )}
+
+        {hasNext && !loading && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={loadMore}
+              className="text-toss-blue font-medium hover:underline py-2 px-4"
+            >
+              더 보기
+            </button>
+          </div>
+        )}
+      </main>
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-6 right-6 max-w-2xl mx-auto w-full pointer-events-none flex justify-end px-5">
         {user ? (
           <Link
             href="/articles/new"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block"
+            className="pointer-events-auto bg-toss-blue text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors text-2xl pb-1"
           >
-            글쓰기
+            +
           </Link>
         ) : (
-          <Link
-            href="/auth/login"
-            className="bg-gray-400 text-white px-4 py-2 rounded inline-block cursor-not-allowed"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('로그인이 필요합니다.');
-            }}
+          <button
+            onClick={() => alert('로그인이 필요합니다.')}
+            className="pointer-events-auto bg-gray-400 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-not-allowed text-2xl pb-1"
           >
-            글쓰기 (로그인 필요)
-          </Link>
+            +
+          </button>
         )}
       </div>
-
-      <div className="space-y-4">
-        {articles.map((article) => (
-          <Link
-            key={article.id}
-            href={`/articles/${article.id}`}
-            className="block p-4 border rounded hover:bg-gray-50"
-          >
-            <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
-            <div className="text-sm text-gray-600">
-              <span>{article.authorNickname}</span>
-              <span className="mx-2">·</span>
-              <span>조회 {article.viewCount}</span>
-              <span className="mx-2">·</span>
-              <span>댓글 {article.commentCount}</span>
-              <span className="mx-2">·</span>
-              <span>{new Date(article.createdAt).toLocaleDateString()}</span>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {hasNext && (
-        <div className="mt-8 text-center">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 disabled:bg-gray-300"
-          >
-            {loading ? '로딩 중...' : '더 보기'}
-          </button>
-        </div>
-      )}
-
-      {articles.length === 0 && !loading && (
-        <p className="text-center text-gray-500 mt-8">게시글이 없습니다.</p>
-      )}
-    </main>
+    </div>
   );
 }
