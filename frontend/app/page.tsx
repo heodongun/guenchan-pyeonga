@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Article {
   id: number;
@@ -12,11 +13,19 @@ interface Article {
   createdAt: string;
 }
 
+interface User {
+  id: number;
+  email: string;
+  nickname: string;
+}
+
 export default function Home() {
+  const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasNext, setHasNext] = useState(false);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const fetchArticles = async (cursor?: number | null) => {
     setLoading(true);
@@ -46,6 +55,11 @@ export default function Home() {
 
   useEffect(() => {
     fetchArticles();
+    // Load user from localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const loadMore = () => {
@@ -54,17 +68,67 @@ export default function Home() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    router.refresh();
+  };
+
   return (
     <main className="min-h-screen p-8 max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-8">게시판</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">게시판</h1>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="text-gray-700">환영합니다, {user.nickname}님</span>
+              <button
+                onClick={handleLogout}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth/login"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                로그인
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                회원가입
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
 
       <div className="mb-4">
-        <Link
-          href="/articles/new"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          글쓰기
-        </Link>
+        {user ? (
+          <Link
+            href="/articles/new"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block"
+          >
+            글쓰기
+          </Link>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="bg-gray-400 text-white px-4 py-2 rounded inline-block cursor-not-allowed"
+            onClick={(e) => {
+              e.preventDefault();
+              alert('로그인이 필요합니다.');
+            }}
+          >
+            글쓰기 (로그인 필요)
+          </Link>
+        )}
       </div>
 
       <div className="space-y-4">
