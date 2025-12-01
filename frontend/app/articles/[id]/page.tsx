@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiUrl } from '@/lib/api';
 
 interface Article {
   id: number;
@@ -27,6 +28,30 @@ interface Comment {
   children: Comment[];
 }
 
+const normalizeCommentTree = (items: unknown): Comment[] => {
+  if (!Array.isArray(items)) return [];
+
+  const normalize = (item: any): Comment => {
+    const normalizedChildren = Array.isArray(item?.children)
+      ? item.children.map((child: any) => normalize(child))
+      : [];
+
+    return {
+      id: item?.id ?? 0,
+      content: item?.content ?? '',
+      authorId: item?.authorId ?? 0,
+      authorNickname: item?.authorNickname ?? '',
+      parentId: item?.parentId ?? null,
+      depth: item?.depth ?? 0,
+      isDeleted: Boolean(item?.isDeleted),
+      createdAt: item?.createdAt ?? '',
+      children: normalizedChildren,
+    };
+  };
+
+  return items.map(normalize);
+};
+
 export default function ArticleDetail() {
   const params = useParams();
   const router = useRouter();
@@ -39,8 +64,6 @@ export default function ArticleDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-
   useEffect(() => {
     fetchArticle();
     fetchComments();
@@ -48,7 +71,7 @@ export default function ArticleDetail() {
 
   const fetchArticle = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/articles/${id}`);
+      const response = await fetch(apiUrl(`/api/articles/${id}`));
       if (!response.ok) {
         throw new Error('게시글을 찾을 수 없습니다.');
       }
@@ -63,13 +86,14 @@ export default function ArticleDetail() {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/comments/article/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setComments(data);
-      }
+      const response = await fetch(apiUrl(`/api/comments/article/${id}`));
+      if (!response.ok) return;
+
+      const data = await response.json();
+      setComments(normalizeCommentTree(data));
     } catch (err) {
       console.error('Failed to fetch comments:', err);
+      setComments([]);
     }
   };
 
@@ -82,7 +106,7 @@ export default function ArticleDetail() {
     }
 
     try {
-      const response = await fetch(`${apiUrl}/api/comments`, {
+      const response = await fetch(apiUrl('/api/comments'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +143,7 @@ export default function ArticleDetail() {
     }
 
     try {
-      const response = await fetch(`${apiUrl}/api/articles/${id}`, {
+      const response = await fetch(apiUrl(`/api/articles/${id}`), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -163,7 +187,7 @@ export default function ArticleDetail() {
             </button>
           )}
         </div>
-        {comment.children.map((child) => renderComment(child))}
+        {(comment.children ?? []).map((child) => renderComment(child))}
       </div>
     );
   };

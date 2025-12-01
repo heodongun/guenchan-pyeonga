@@ -42,9 +42,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        BACKEND_API_ORIGIN: http://backend:8080
     container_name: board-frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
+      BACKEND_API_ORIGIN: http://backend:8080
     ports:
       - "3000:3000"
     depends_on:

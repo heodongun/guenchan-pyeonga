@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiUrl } from '@/lib/api';
 
 export default function Login() {
   const router = useRouter();
@@ -17,8 +18,7 @@ export default function Login() {
     setError('');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-      const response = await fetch(`${apiUrl}/api/auth/signin`, {
+      const response = await fetch(apiUrl('/api/auth/signin'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,9 +1,16 @@
 /** @type {import('next').NextConfig} */
+const backendOrigin = (process.env.BACKEND_API_ORIGIN || 'http://localhost:8080').replace(/\/$/, '');
+
 const nextConfig = {
   reactStrictMode: true,
-  env: {
-    API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendOrigin}/api/:path*`,
+      },
+    ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

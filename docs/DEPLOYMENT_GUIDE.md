@@ -87,6 +87,8 @@ EOF
 docker-compose up -d --build
 ```
 
+> 프론트엔드의 `/api/*` 요청은 Next.js 서버가 `BACKEND_API_ORIGIN` 환경 변수로 지정된 주소로 프록시합니다. 기본값은 `http://backend:8080`이며, 백엔드 주소를 바꿨다면 이 값도 함께 수정하세요.
+
 **실행 과정**:
 1. MySQL 이미지 다운로드 (처음 실행 시)
 2. Backend Dockerfile로 Kotlin 프로젝트 빌드

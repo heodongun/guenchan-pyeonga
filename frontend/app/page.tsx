@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/lib/api';
 
 interface Article {
   id: number;
@@ -30,10 +31,9 @@ export default function Home() {
   const fetchArticles = async (cursor?: number | null) => {
     setLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
       const url = cursor
-        ? `${apiUrl}/api/articles?lastId=${cursor}&size=20`
-        : `${apiUrl}/api/articles?size=20`;
+        ? apiUrl(`/api/articles?lastId=${cursor}&size=20`)
+        : apiUrl('/api/articles?size=20');
 
       const response = await fetch(url);
       const data = await response.json();
