@@ -1,9 +1,9 @@
-FROM gradle:8.5-jdk21 AS build
+FROM gradle:8.11-jdk21 AS build
 WORKDIR /app
 COPY . .
 RUN gradle clean build --no-daemon
 
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080

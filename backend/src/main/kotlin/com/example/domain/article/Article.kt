@@ -1,6 +1,8 @@
 package com.example.domain.article
 
 import com.example.domain.user.Users
+import com.example.util.LocalDateTimeSerializer
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -15,6 +17,7 @@ object Articles : LongIdTable("articles") {
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
 }
 
+@Serializable
 data class Article(
     val id: Long,
     val title: String,
@@ -22,24 +25,30 @@ data class Article(
     val authorId: Long,
     val authorNickname: String,
     val viewCount: Int,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime
 )
 
+@Serializable
 data class ArticleListItem(
     val id: Long,
     val title: String,
     val authorNickname: String,
     val viewCount: Int,
     val commentCount: Int,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime
 )
 
+@Serializable
 data class CreateArticleRequest(
     val title: String,
     val content: String
 )
 
+@Serializable
 data class UpdateArticleRequest(
     val title: String,
     val content: String

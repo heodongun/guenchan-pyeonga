@@ -1,5 +1,7 @@
 package com.example.domain.user
 
+import com.example.util.LocalDateTimeSerializer
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -13,19 +15,24 @@ object Users : LongIdTable("users") {
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
 }
 
+@Serializable
 data class User(
     val id: Long,
     val email: String,
     val password: String,
     val nickname: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime
 )
 
+@Serializable
 data class UserResponse(
     val id: Long,
     val email: String,
     val nickname: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime
 )
 

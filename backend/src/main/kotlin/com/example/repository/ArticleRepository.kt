@@ -8,6 +8,7 @@ import com.example.domain.user.Users
 import com.example.util.exceptions.NotFoundException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import java.time.LocalDateTime
 
 class ArticleRepository {
@@ -36,7 +37,7 @@ class ArticleRepository {
     suspend fun findById(id: Long, incrementView: Boolean = false): Article? {
         if (incrementView) {
             Articles.update({ Articles.id eq id }) {
-                it[Articles.viewCount] = Articles.viewCount + 1
+                it[viewCount] = viewCount + 1
             }
         }
 

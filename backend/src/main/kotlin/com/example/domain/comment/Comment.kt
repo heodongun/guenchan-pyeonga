@@ -2,6 +2,8 @@ package com.example.domain.comment
 
 import com.example.domain.article.Articles
 import com.example.domain.user.Users
+import com.example.util.LocalDateTimeSerializer
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -19,6 +21,7 @@ object Comments : LongIdTable("comments") {
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
 }
 
+@Serializable
 data class Comment(
     val id: Long,
     val content: String,
@@ -29,11 +32,14 @@ data class Comment(
     val path: String,
     val depth: Int,
     val isDeleted: Boolean,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
     val children: List<Comment> = emptyList()
 )
 
+@Serializable
 data class CommentResponse(
     val id: Long,
     val content: String,
@@ -42,10 +48,12 @@ data class CommentResponse(
     val parentId: Long?,
     val depth: Int,
     val isDeleted: Boolean,
+    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val children: List<CommentResponse> = emptyList()
 )
 
+@Serializable
 data class CreateCommentRequest(
     val content: String,
     val articleId: Long,
