@@ -11,6 +11,8 @@ import com.example.util.exceptions.ForbiddenException
 import com.example.util.exceptions.NotFoundException
 import kotlinx.serialization.Serializable
 
+import com.example.repository.CommentRepository
+
 @Serializable
 data class ArticleListResponse(
     val articles: List<ArticleListItem>,
@@ -18,7 +20,10 @@ data class ArticleListResponse(
     val nextCursor: Long?
 )
 
-class ArticleService(private val articleRepository: ArticleRepository = ArticleRepository()) {
+class ArticleService(
+    private val articleRepository: ArticleRepository = ArticleRepository(),
+    private val commentRepository: CommentRepository = CommentRepository()
+) {
 
     suspend fun createArticle(request: CreateArticleRequest, authorId: Long): Article {
         if (request.title.isBlank() || request.content.isBlank()) {
@@ -88,6 +93,8 @@ class ArticleService(private val articleRepository: ArticleRepository = ArticleR
         }
 
         dbQuery {
+            // 댓글 먼저 삭제 (Foreign Key 제약 조건 해결)
+            commentRepository.deleteByArticleId(id)
             articleRepository.delete(id)
         }
     }

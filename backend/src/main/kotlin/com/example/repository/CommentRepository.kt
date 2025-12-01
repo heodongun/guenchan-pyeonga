@@ -122,4 +122,11 @@ class CommentRepository {
     suspend fun existsById(id: Long): Boolean {
         return Comments.select { Comments.id eq id }.count() > 0
     }
+
+    /**
+     * 특정 게시글의 모든 댓글 삭제 (물리적 삭제)
+     */
+    suspend fun deleteByArticleId(articleId: Long) {
+        Comments.deleteWhere { Comments.articleId eq articleId }
+    }
 }
