@@ -105,6 +105,12 @@ export default function NewArticle() {
             >
               {loading ? '작성 중...' : '작성하기'}
             </button>
+            <Link
+              href="/"
+              className="flex-1 bg-gray-100 text-gray-600 rounded-xl py-4 text-lg font-medium hover:bg-gray-200 transition-colors text-center"
+            >
+              취소
+            </Link>
           </div>
         </form>
       </div>

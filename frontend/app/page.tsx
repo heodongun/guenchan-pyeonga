@@ -83,10 +83,15 @@ export default function Home() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="text-sm text-gray-600 hidden sm:inline">{user.nickname}님</span>
+                <Link
+                  href="/articles/new"
+                  className="text-sm bg-toss-blue text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  글쓰기
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-800 transition-colors ml-2"
                 >
                   로그아웃
                 </button>
@@ -113,10 +118,10 @@ export default function Home() {
 
       <main className="max-w-2xl mx-auto px-5 pt-6">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-toss-text mb-2">
+        <div className="mb-8 flex justify-between items-end">
+          <h2 className="text-2xl font-bold text-toss-text">
             안녕하세요,<br />
-            오늘의 이야기를 들려주세요.
+            {user ? `${user.nickname}님` : '방문자님'}
           </h2>
         </div>
 
@@ -172,25 +177,6 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6 max-w-2xl mx-auto w-full pointer-events-none flex justify-end px-5">
-        {user ? (
-          <Link
-            href="/articles/new"
-            className="pointer-events-auto bg-toss-blue text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors text-2xl pb-1"
-          >
-            +
-          </Link>
-        ) : (
-          <button
-            onClick={() => alert('로그인이 필요합니다.')}
-            className="pointer-events-auto bg-gray-400 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-not-allowed text-2xl pb-1"
-          >
-            +
-          </button>
-        )}
-      </div>
     </div>
   );
 }
