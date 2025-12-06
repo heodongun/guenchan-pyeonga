@@ -3,10 +3,11 @@ package com.example.route
 import com.example.domain.article.CreateArticleRequest
 import com.example.domain.article.UpdateArticleRequest
 import com.example.service.ArticleService
+import com.example.util.userIdOrThrow
+import com.example.util.exceptions.BadRequestException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -27,7 +28,7 @@ fun Route.articleRoutes() {
         // 게시글 상세 조회 (인증 불필요)
         get("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
-                ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid article ID")
+                ?: throw BadRequestException("잘못된 게시글 ID입니다.")
 
             val article = articleService.getArticleById(id, incrementView = true)
             call.respond(article)
@@ -37,9 +38,7 @@ fun Route.articleRoutes() {
         authenticate("auth-jwt") {
             // 게시글 작성
             post {
-                val principal = call.principal<JWTPrincipal>()
-                val userId = principal?.payload?.getClaim("userId")?.asLong()
-                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                val userId = call.userIdOrThrow()
 
                 val request = call.receive<CreateArticleRequest>()
                 val article = articleService.createArticle(request, userId)
@@ -49,12 +48,10 @@ fun Route.articleRoutes() {
 
             // 게시글 수정
             put("/{id}") {
-                val principal = call.principal<JWTPrincipal>()
-                val userId = principal?.payload?.getClaim("userId")?.asLong()
-                    ?: return@put call.respond(HttpStatusCode.Unauthorized)
+                val userId = call.userIdOrThrow()
 
                 val id = call.parameters["id"]?.toLongOrNull()
-                    ?: return@put call.respond(HttpStatusCode.BadRequest, "Invalid article ID")
+                    ?: throw BadRequestException("잘못된 게시글 ID입니다.")
 
                 val request = call.receive<UpdateArticleRequest>()
                 val article = articleService.updateArticle(id, request, userId)
@@ -64,12 +61,10 @@ fun Route.articleRoutes() {
 
             // 게시글 삭제
             delete("/{id}") {
-                val principal = call.principal<JWTPrincipal>()
-                val userId = principal?.payload?.getClaim("userId")?.asLong()
-                    ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+                val userId = call.userIdOrThrow()
 
                 val id = call.parameters["id"]?.toLongOrNull()
-                    ?: return@delete call.respond(HttpStatusCode.BadRequest, "Invalid article ID")
+                    ?: throw BadRequestException("잘못된 게시글 ID입니다.")
 
                 articleService.deleteArticle(id, userId)
 

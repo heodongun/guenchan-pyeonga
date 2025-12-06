@@ -117,30 +117,32 @@ class CommentService(
      * 평탄화된 댓글 리스트를 계층 구조로 변환
      */
     private fun buildCommentTree(comments: List<Comment>): List<CommentResponse> {
-        val commentMap = mutableMapOf<Long, MutableList<Comment>>()
-        val rootComments = mutableListOf<Comment>()
+        if (comments.isEmpty()) return emptyList()
 
-        // 부모 ID별로 그룹화
+        val responseMap = comments.associate { comment ->
+            comment.id to comment.copy(children = emptyList()).toResponse()
+        }
+
+        val childrenIndex = mutableMapOf<Long, MutableList<Long>>()
+
+        // 부모-자식 관계를 입력 순서대로 기록하여 정렬 안정성 유지
         comments.forEach { comment ->
-            if (comment.parentId == null) {
-                rootComments.add(comment)
-            } else {
-                commentMap.getOrPut(comment.parentId) { mutableListOf() }.add(comment)
-            }
+            val parentId = comment.parentId ?: return@forEach
+            childrenIndex.getOrPut(parentId) { mutableListOf() }.add(comment.id)
         }
 
-        // 재귀적으로 트리 구성
-        fun buildTree(comment: Comment): CommentResponse {
-            val children = commentMap[comment.id]?.map { buildTree(it) } ?: emptyList()
-            return comment.copy(children = children.map { response ->
-                comments.find { it.id == response.id }!!.copy(
-                    children = response.children.map { childResponse ->
-                        comments.find { it.id == childResponse.id }!!
-                    }
-                )
-            }).toResponse()
+        fun attachChildren(commentId: Long): CommentResponse {
+            val base = responseMap.getValue(commentId)
+
+            val nested = childrenIndex[commentId]?.map { childId ->
+                attachChildren(childId)
+            } ?: emptyList()
+
+            return base.copy(children = nested)
         }
 
-        return rootComments.map { buildTree(it) }
+        return comments
+            .filter { it.parentId == null }
+            .map { attachChildren(it.id) }
     }
 }

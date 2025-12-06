@@ -50,11 +50,20 @@ class ArticleService(
      * 커서 기반 무한 스크롤을 사용한 게시글 목록 조회 (비동기)
      */
     suspend fun getArticles(lastId: Long?, size: Int = 20): ArticleListResponse {
-        val articles = dbQuery {
-            articleRepository.findAllWithCursor(lastId, size + 1)  // 하나 더 조회해서 다음 페이지 존재 여부 확인
+        if (lastId != null && lastId <= 0) {
+            throw BadRequestException("lastId는 양수여야 합니다.")
         }
 
-        val hasNext = articles.size > size
+        val pageSize = size.coerceIn(1, 50)
+        if (size != pageSize) {
+            throw BadRequestException("size 파라미터는 1~50 사이여야 합니다.")
+        }
+
+        val articles = dbQuery {
+            articleRepository.findAllWithCursor(lastId, pageSize + 1)  // 하나 더 조회해서 다음 페이지 존재 여부 확인
+        }
+
+        val hasNext = articles.size > pageSize
         val resultArticles = if (hasNext) articles.dropLast(1) else articles
         val nextCursor = if (hasNext) resultArticles.lastOrNull()?.id else null
 

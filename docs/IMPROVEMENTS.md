@@ -5,6 +5,8 @@
 2. [커서 기반 무한 스크롤과 비동기 처리](#2-커서-기반-무한-스크롤과-비동기-처리)
 3. [Path Model 기반 계층형 댓글](#3-path-model-기반-계층형-댓글)
 4. [재귀적 댓글 삭제 로직](#4-재귀적-댓글-삭제-로직)
+5. [요청 검증과 API 방어선](#5-요청-검증과-api-방어선)
+6. [댓글 트리 빌더 안정화](#6-댓글-트리-빌더-안정화)
 
 ---
 
@@ -378,6 +380,89 @@ After:
 | 데이터 손실 | 발생 가능 | 최소화 |
 | 고아 댓글 | 수동 정리 필요 | 자동 정리 |
 | 맥락 유지 | 불가능 | "삭제된 댓글입니다." 표시로 유지 |
+
+---
+
+## 5. 요청 검증과 API 방어선
+
+### ⚠️ 기존 문제
+- 필드 검증을 서비스 레이어에서만 수행해, 라우트마다 중복 로직 발생
+- `size`/`lastId` 등 쿼리 파라미터에 대한 방어 로직 부족
+
+### ✅ 개선
+- Ktor `RequestValidation` 플러그인으로 입력 모델을 선제 검증
+- 이메일/비밀번호 길이, 제목/본문/댓글 글자수 제한 추가
+- 커서 기반 조회 시 `size`(1~50), `lastId`(양수) 강제 검증
+- JWT 추출을 `ApplicationCall.userIdOrThrow()` 확장으로 일원화해 라우트 가독성과 보안성 향상
+
+```kotlin
+fun Application.configureRequestValidation() {
+    install(RequestValidation) {
+        validate<SignUpRequest> { req ->
+            when {
+                !emailRegex.matches(req.email) -> Invalid("이메일 형식이 올바르지 않습니다.")
+                req.password.length < 8 -> Invalid("비밀번호는 8자 이상이어야 합니다.")
+                req.nickname.length !in 2..20 -> Invalid("닉네임은 2~20자 사이여야 합니다.")
+                else -> Valid
+            }
+        }
+        validate<CreateArticleRequest> { req ->
+            if (req.title.length !in 1..120) Invalid("제목은 1~120자 사이여야 합니다.") else Valid
+        }
+        // ...
+    }
+}
+
+// 라우트에서 JWT 추출
+authenticate("auth-jwt") {
+    post {
+        val userId = call.userIdOrThrow()
+        val request = call.receive<CreateArticleRequest>()
+        // ...
+    }
+}
+```
+
+### 🎯 효과
+- 잘못된 페이로드/쿼리를 애플리케이션 진입 시점에서 차단 → 서비스 로직 단순화
+- 라우트별 사용자 인증/파라미터 검증이 템플릿화되어 유지보수성 상승
+- 클라이언트는 400/401 응답으로 즉시 피드백을 받아 재시도 가능
+
+---
+
+## 6. 댓글 트리 빌더 안정화
+
+### ⚠️ 기존 문제
+- 평탄화된 댓글 목록을 트리로 변환할 때 children/parent 매핑이 중복되어 가독성이 떨어짐
+- 순서 보존이 명확하지 않아 정렬 안정성이 흔들릴 여지 존재
+
+### ✅ 개선
+- 입력 순서를 유지하는 children 인덱스를 구축하고, `CommentResponse` 맵으로 한 번만 복사 후 재귀 조립
+
+```kotlin
+private fun buildCommentTree(comments: List<Comment>): List<CommentResponse> {
+    val responseMap = comments.associate { it.id to it.copy(children = emptyList()).toResponse() }
+    val childrenIndex = mutableMapOf<Long, MutableList<Long>>()
+
+    comments.forEach { comment ->
+        comment.parentId?.let { parent ->
+            childrenIndex.getOrPut(parent) { mutableListOf() }.add(comment.id)
+        }
+    }
+
+    fun attachChildren(commentId: Long): CommentResponse {
+        val base = responseMap.getValue(commentId)
+        val nested = childrenIndex[commentId]?.map { attachChildren(it) } ?: emptyList()
+        return base.copy(children = nested)
+    }
+
+    return comments.filter { it.parentId == null }.map { attachChildren(it.id) }
+}
+```
+
+### 🎯 효과
+- 경로 기반 정렬 유지 + 입력 순서 반영 → 일관된 댓글 노출
+- 변환 과정 단순화로 유지보수성 향상, 불필요한 데이터 복사 제거
 
 ---
 

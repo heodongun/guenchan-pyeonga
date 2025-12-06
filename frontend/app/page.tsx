@@ -67,6 +67,8 @@ export default function Home() {
     }
   };
 
+  const userInitial = user?.nickname?.charAt(0)?.toUpperCase() ?? 'G';
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -75,38 +77,52 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-toss-text">게시판</h1>
+    <div className="min-h-screen pb-24 text-toss-text">
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+        <div className="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="pill bg-white/80 border border-white/70 shadow-sm">Now</span>
+            <div className="leading-tight">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-toss-gray">Waveboard</p>
+              <h1 className="text-lg font-semibold text-toss-text">읽고, 쓰고, 연결하기</h1>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                <div className="flex items-center gap-2 bg-white/70 border border-black/5 px-3 py-2 rounded-full shadow-sm">
+                  <div className="w-9 h-9 rounded-full bg-toss-blue text-white flex items-center justify-center font-bold">
+                    {userInitial}
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-[11px] text-toss-gray">Signed in</p>
+                    <p className="text-sm font-semibold">{user.nickname}</p>
+                  </div>
+                </div>
                 <Link
                   href="/articles/new"
-                  className="text-sm bg-toss-blue text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                  className="text-sm toss-button px-4 py-2 rounded-full shadow-md hover:shadow-lg transition"
                 >
                   글쓰기
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-sm text-gray-500 hover:text-gray-800 transition-colors ml-2"
+                  className="text-sm text-toss-gray hover:text-toss-text transition-colors ml-1"
                 >
                   로그아웃
                 </button>
               </>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Link
                   href="/auth/login"
-                  className="text-sm text-gray-600 hover:text-toss-blue transition-colors"
+                  className="text-sm font-semibold text-toss-text px-3 py-2 rounded-full hover:bg-white transition-colors border border-transparent hover:border-black/5"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="text-sm bg-toss-blue text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+                  className="text-sm toss-button px-4 py-2 rounded-full shadow-md hover:shadow-lg transition"
                 >
                   회원가입
                 </Link>
@@ -116,66 +132,143 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 pt-6">
-        {/* Welcome Section */}
-        <div className="mb-8 flex justify-between items-end">
-          <h2 className="text-2xl font-bold text-toss-text">
-            안녕하세요,<br />
-            {user ? `${user.nickname}님` : '방문자님'}
-          </h2>
-        </div>
+      <main className="max-w-3xl mx-auto px-5 pt-8 space-y-8">
+        <section className="toss-card">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+            <div className="space-y-3">
+              <span className="pill">오늘의 흐름</span>
+              <div>
+                <h2 className="text-3xl font-semibold leading-tight">
+                  안녕하세요, {user ? `${user.nickname}님` : '방문자님'}
+                </h2>
+                <p className="text-sm text-toss-gray mt-2">
+                  글과 의견이 자연스럽게 흐르는, 작지만 날카로운 커뮤니티.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-toss-blue/10 text-toss-blue font-semibold text-sm border border-toss-blue/20">
+                  🔥 실시간 피드 {articles.length > 0 ? `(${articles.length}건 표시 중)` : ''}
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 text-amber-700 font-semibold text-sm border border-amber-200">
+                  💡 더 깊게, 더 짧게
+                </div>
+              </div>
+            </div>
 
-        {/* Article List */}
-        <div className="space-y-4">
-          {articles.map((article) => (
+            <div className="grid grid-cols-2 gap-3 min-w-[220px]">
+              <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-toss-gray">현재 글</p>
+                <p className="text-2xl font-bold">{articles.length}</p>
+                <p className="text-xs text-toss-gray mt-1">지금 화면에 표시 중</p>
+              </div>
+              <div className="rounded-2xl border border-black/5 bg-gradient-to-br from-toss-blue/10 to-amber-100 px-4 py-3 shadow-sm">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-toss-gray">새로 올라온 글</p>
+                <p className="text-2xl font-bold">{articles[0] ? `#${articles[0].id}` : '-'}</p>
+                <p className="text-xs text-toss-gray mt-1">방금 전 스냅샷</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            {user ? (
+              <Link
+                href="/articles/new"
+                className="toss-button px-4 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition"
+              >
+                새 글 작성하기
+              </Link>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="px-4 py-3 rounded-xl border border-black/5 bg-white/80 text-sm font-semibold hover:-translate-y-0.5 transition-transform shadow-sm"
+              >
+                로그인하고 글 쓰기
+              </Link>
+            )}
             <Link
-              key={article.id}
-              href={`/articles/${article.id}`}
-              className="block toss-card hover:scale-[1.02] transition-transform duration-200 active:scale-[0.98]"
+              href="#feed"
+              className="px-4 py-3 rounded-xl border border-transparent hover:border-black/5 bg-white/70 text-sm font-semibold text-toss-text shadow-sm"
             >
-              <h3 className="text-lg font-bold text-toss-text mb-2 line-clamp-1">
-                {article.title}
-              </h3>
-              <div className="flex items-center text-sm text-gray-500 gap-2">
-                <span>{article.authorNickname}</span>
-                <span>·</span>
-                <span>{new Date(article.createdAt).toLocaleDateString()}</span>
-              </div>
-              <div className="mt-3 flex items-center gap-3 text-sm text-gray-400">
-                <span className="flex items-center gap-1">
-                  👁️ {article.viewCount}
-                </span>
-                <span className="flex items-center gap-1">
-                  💬 {article.commentCount}
-                </span>
-              </div>
+              피드로 바로가기
             </Link>
-          ))}
-        </div>
-
-        {/* Loading / Empty States */}
-        {loading && (
-          <div className="py-8 text-center text-gray-500">
-            로딩 중...
           </div>
-        )}
+        </section>
 
-        {!loading && articles.length === 0 && (
-          <div className="py-20 text-center text-gray-400">
-            아직 게시글이 없어요.
+        <section id="feed" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.14em] text-toss-gray">Latest</p>
+              <h3 className="text-xl font-semibold">지금 막 올라온 글</h3>
+            </div>
+            {hasNext && (
+              <button
+                onClick={loadMore}
+                className="text-sm font-semibold text-toss-blue hover:underline"
+              >
+                이어서 보기
+              </button>
+            )}
           </div>
-        )}
 
-        {hasNext && !loading && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={loadMore}
-              className="text-toss-blue font-medium hover:underline py-2 px-4"
-            >
-              더 보기
-            </button>
+          <div className="space-y-4">
+            {articles.map((article) => (
+              <Link
+                key={article.id}
+                href={`/articles/${article.id}`}
+                className="block toss-card p-5 hover:-translate-y-1 transition-transform duration-200 active:translate-y-0.5 border-l-4 border-transparent hover:border-l-toss-blue"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-toss-gray mb-2">글 #{article.id}</p>
+                    <h3 className="text-lg font-semibold text-toss-text leading-tight line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <div className="mt-3 flex items-center gap-2 text-xs text-toss-gray">
+                      <span className="px-3 py-1 rounded-full bg-toss-blue/10 text-toss-blue font-semibold">
+                        {article.authorNickname}
+                      </span>
+                      <span>·</span>
+                      <span>{new Date(article.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-2 text-sm text-toss-gray">
+                    <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/70 border border-black/5 shadow-sm">
+                      👁️ {article.viewCount}
+                    </span>
+                    <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/70 border border-black/5 shadow-sm">
+                      💬 {article.commentCount}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        )}
+
+          {/* Loading / Empty States */}
+          {loading && (
+            <div className="py-10 text-center text-toss-gray font-semibold">
+              로딩 중입니다. 조금만 기다려주세요.
+            </div>
+          )}
+
+          {!loading && articles.length === 0 && (
+            <div className="toss-card text-center text-toss-gray">
+              <p className="text-lg font-semibold mb-2">아직 게시글이 없어요.</p>
+              <p className="text-sm">첫 글을 남겨주세요.</p>
+            </div>
+          )}
+
+          {hasNext && !loading && (
+            <div className="text-center">
+              <button
+                onClick={loadMore}
+                className="toss-button px-5 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition"
+              >
+                다음 글 더 보기
+              </button>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );

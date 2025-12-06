@@ -3,6 +3,7 @@ package com.example.config
 import com.example.util.exceptions.*
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
@@ -16,6 +17,16 @@ data class ErrorResponse(
 
 fun Application.configureExceptionHandling() {
     install(StatusPages) {
+        exception<RequestValidationException> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    status = HttpStatusCode.BadRequest.value,
+                    message = cause.reasons.joinToString("; ")
+                )
+            )
+        }
+
         exception<NotFoundException> { call, cause ->
             call.respond(
                 HttpStatusCode.NotFound,

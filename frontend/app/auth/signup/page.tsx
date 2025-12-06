@@ -45,87 +45,90 @@ export default function Signup() {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-toss-bg">
-      <div className="w-full max-w-[400px]">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-toss-text mb-2">회원가입</h1>
-          <p className="text-gray-500">새로운 시작을 함께해요.</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm font-medium">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="toss-card">
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-toss-text text-sm font-semibold mb-2">
-              이메일
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
-              placeholder="이메일을 입력하세요"
-            />
+      <div className="w-full max-w-[420px]">
+        <div className="toss-card">
+          <div className="text-center mb-8 space-y-2">
+            <span className="pill">새 계정</span>
+            <h1 className="text-3xl font-bold text-toss-text">시작을 가볍게</h1>
+            <p className="text-toss-gray text-sm">선명한 닉네임과 이메일만 있으면 바로 참여할 수 있습니다.</p>
           </div>
 
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-toss-text text-sm font-semibold mb-2">
-              비밀번호
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
-              placeholder="비밀번호를 입력하세요 (최소 6자)"
-            />
-          </div>
+          {error && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm font-semibold border border-red-100">
+              {error}
+            </div>
+          )}
 
-          <div className="mb-8">
-            <label htmlFor="nickname" className="block text-toss-text text-sm font-semibold mb-2">
-              닉네임
-            </label>
-            <input
-              type="text"
-              id="nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400"
-              placeholder="닉네임을 입력하세요"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-toss-text text-sm font-semibold">
+                이메일
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white/80 border border-black/5 focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 shadow-sm"
+                placeholder="name@email.com"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full toss-button py-4 text-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
-          >
-            {loading ? '가입 중...' : '회원가입'}
-          </button>
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-toss-text text-sm font-semibold">
+                비밀번호
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full px-4 py-3 rounded-xl bg-white/80 border border-black/5 focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 shadow-sm"
+                placeholder="8자 이상, 안전하게"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="nickname" className="block text-toss-text text-sm font-semibold">
+                닉네임
+              </label>
+              <input
+                type="text"
+                id="nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white/80 border border-black/5 focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 shadow-sm"
+                placeholder="커뮤니티에서 보여질 이름"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full toss-button py-4 text-lg disabled:bg-gray-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition"
+            >
+              {loading ? '가입 중...' : '회원가입'}
+            </button>
+          </form>
 
           <div className="mt-6 text-center">
             <Link
               href="/auth/login"
-              className="text-sm text-gray-500 hover:text-toss-blue transition-colors"
+              className="text-sm font-semibold text-toss-text hover:text-toss-blue transition-colors"
             >
               이미 계정이 있으신가요? 로그인
             </Link>
           </div>
-        </form>
 
-        <div className="text-center mt-8">
-          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            ← 홈으로 돌아가기
-          </Link>
+          <div className="text-center mt-6">
+            <Link href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              ← 홈으로 돌아가기
+            </Link>
+          </div>
         </div>
       </div>
     </main>

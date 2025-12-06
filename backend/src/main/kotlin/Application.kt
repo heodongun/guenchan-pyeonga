@@ -3,6 +3,7 @@ package com.example
 import com.example.config.DatabaseConfig
 import com.example.config.JWTConfig.configureJWT
 import com.example.config.configureExceptionHandling
+import com.example.config.configureRequestValidation
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.calllogging.*
@@ -39,6 +40,9 @@ fun Application.module() {
     }
 
     install(CallLogging)
+
+    // 요청 본문 유효성 검증
+    configureRequestValidation()
 
     // JWT 인증 설정
     configureJWT()

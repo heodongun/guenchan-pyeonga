@@ -9,10 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'toss-blue': '#3182f6',
-        'toss-bg': '#f2f4f6',
-        'toss-text': '#191f28',
-        'toss-gray': '#b1b8c0',
+        'toss-blue': '#0ea5e9',
+        'toss-bg': '#f7f5ef',
+        'toss-text': '#0f172a',
+        'toss-gray': '#6b7280',
       },
     },
   },
