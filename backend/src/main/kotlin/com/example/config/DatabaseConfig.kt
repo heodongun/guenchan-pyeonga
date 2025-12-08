@@ -2,7 +2,11 @@ package com.example.config
 
 import com.example.domain.article.Articles
 import com.example.domain.comment.Comments
+import com.example.domain.event.Events
+import com.example.domain.place.Places
+import com.example.domain.reservation.Reservations
 import com.example.domain.user.Users
+import com.example.config.DataSeeder
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
@@ -26,10 +30,13 @@ object DatabaseConfig {
 
         Database.connect(HikariDataSource(config))
 
-        // 테이블 생성
+        // 테이블 생성 및 컬럼 보강
         transaction {
-            SchemaUtils.create(Users, Articles, Comments)
+            SchemaUtils.createMissingTablesAndColumns(Users, Articles, Comments, Places, Events, Reservations)
         }
+
+        // 기본 데이터 시드
+        DataSeeder.seed()
     }
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =

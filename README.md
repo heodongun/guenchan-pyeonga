@@ -1,202 +1,61 @@
-# 게시판 서비스 (Board Service)
+# Homeground (Kotlin + Ktor + MySQL + Next.js)
 
-> **Kotlin + Ktor + MySQL + Next.js**로 구현한 현대적인 게시판 서비스
-
-## 📌 프로젝트 소개
-
-이 프로젝트는 기존 Spring Boot 기반 게시판 프로젝트의 문제점을 개선하고, 현대적인 기술 스택으로 재구현한 게시판 서비스입니다.
-
-- **개발 기간**: 2024.12.01
-- **개발 인원**: 1인 (개인 프로젝트)
-- **GitHub**: [https://github.com/heodongun/guenchan-pyeonga.git](https://github.com/heodongun/guenchan-pyeonga.git)
+동네 공간 예약 · 모임 일정 · 후기/질문 아카이브를 한 번에 다루는 커뮤니티 서비스입니다. 프론트는 Next.js, 백엔드는 Ktor + Exposed + MySQL로 구성되며 Docker Compose로 손쉽게 올릴 수 있습니다.
 
 ---
 
-## 🔍 기존 코드의 문제점과 개선 사항
-
-### 1. 일관성 없는 예외 처리 → 전역 예외 처리 시스템
-
-| 문제점 | 개선 방법 |
-|--------|----------|
-| orElseThrow() 사용으로 인해 모든 예외가 500 에러로 반환 | Ktor의 StatusPages를 활용한 전역 예외 처리 구현 |
-| 클라이언트가 오류 원인 파악 불가 | 커스텀 예외 클래스로 적절한 HTTP 상태 코드 제공 (400, 401, 403, 404, 409) |
-
-**개선 결과**:
-- **개선 전**: 모든 예외가 500 에러로 반환되어 클라이언트가 원인 파악 불가
-- **개선 후**: 비즈니스 예외별로 적절한 HTTP 상태 코드와 명확한 에러 메시지 제공
-
-### 2. 동기 처리 방식 → 비동기 처리와 커서 기반 무한 스크롤
-
-| 문제점 | 개선 방법 |
-|--------|----------|
-| LIMIT OFFSET 방식의 페이지네이션 | 커서 기반(Cursor-based) 무한 스크롤 구현 |
-| 대량 데이터 처리 시 성능 저하 | Kotlin Coroutines를 활용한 비동기 처리 |
-
-**개선 결과**:
-- **개선 전**: OFFSET 방식으로 페이지가 뒤로 갈수록 성능 저하
-- **개선 후**: lastId를 활용한 커서 기반 조회로 일정한 성능 유지, 비동기 처리로 응답 속도 개선
+## ✨ 핵심 특징
+- **동네 생활 흐름**: 공간 예약, 모임 일정, 후기/질문 게시판을 하나의 서비스 경험으로 제공합니다.
+- **커서 기반 무한 스크롤**: `lastId` 커서를 활용해 일정한 조회 성능을 유지합니다.
+- **계층형 댓글 & 재귀 삭제**: Path 모델로 깊이 제한 없이 댓글 트리를 표현하고, 자식 유무에 따라 Soft/Hard Delete를 처리합니다.
+- **전역 예외 처리 & JWT 인증**: StatusPages 기반 에러 핸들링, JWT로 인증/인가를 단순화합니다.
+- **Docker Compose 원클릭 실행**: MySQL · 백엔드 · 프론트를 한 번에 올리고 헬스체크로 의존성을 보장합니다.
 
 ---
 
-## ✨ 핵심 구현 기능
-
-### 1. 커서 기반 무한 스크롤 (Cursor-based Infinite Scroll)
-
-```kotlin
-// ArticleRepository.kt
-suspend fun findAllWithCursor(lastId: Long?, size: Int = 20): List<ArticleListItem> {
-    val query = (Articles innerJoin Users)
-        .leftJoin(Comments, { Articles.id }, { Comments.articleId })
-        .slice(...)
-        .selectAll()
-        .apply {
-            if (lastId != null) {
-                andWhere { Articles.id less lastId }  // 커서 기반 조회
-            }
-        }
-        .groupBy(Articles.id)
-        .orderBy(Articles.id, SortOrder.DESC)
-        .limit(size)
-
-    return query.map { ... }
-}
-```
-
-**기술적 이점**:
-- OFFSET 방식 대비 일정한 조회 성능 유지
-- 데이터가 많아져도 마지막 페이지 조회 속도가 느려지지 않음
-- 비동기 처리로 서버 리소스 효율적 사용
-
-### 2. Path Model 기반 계층형 댓글
-
-```kotlin
-// Comment 엔티티
-object Comments : LongIdTable("comments") {
-    val path = varchar("path", 1000).default("")  // 예: "1/5/12"
-    val depth = integer("depth").default(0)
-    val isDeleted = bool("is_deleted").default(false)
-    // ...
-}
-```
-
-**기술적 이점**:
-- N-Depth 무한 계층 구조 지원 (기존: 2-Depth 제한)
-- 한 번의 쿼리로 전체 계층 구조 조회 가능
-- Path 기반 정렬로 효율적인 계층 표시
-
-### 3. 재귀적 댓글 삭제 로직
-
-```kotlin
-// CommentService.kt
-suspend fun deleteComment(commentId: Long, userId: Long) {
-    val childrenCount = commentRepository.countNonDeletedChildren(commentId)
-
-    if (childrenCount > 0) {
-        // 자식이 있으면 Soft Delete
-        commentRepository.softDelete(commentId)
-    } else {
-        // 자식이 없으면 Hard Delete
-        commentRepository.hardDelete(commentId)
-
-        // 부모도 재귀적으로 삭제 검사
-        comment.parentId?.let { parentId ->
-            recursivelyDeleteOrphanedParents(parentId)
-        }
-    }
-}
-```
-
-**기술적 이점**:
-- 자식 댓글 유무에 따른 Soft/Hard Delete 자동 결정
-- 고아(Orphan) 댓글 자동 정리로 깔끔한 데이터 관리
-- 재귀적 처리로 상위 댓글까지 자동 정리
-
----
-
-## 🛠️ 기술 스택
-
-### Backend
-- **Language**: Kotlin 2.2.20
-- **Framework**: Ktor 3.3.2
-- **ORM**: Exposed 0.48.0
-- **Database**: MySQL 8.0
-- **Authentication**: JWT (JSON Web Token)
-- **Async**: Kotlin Coroutines
-
-### Frontend
-- **Framework**: Next.js 14.2.0
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **HTTP Client**: Axios
-
-### Infrastructure
-- **Containerization**: Docker & Docker Compose
-- **Database**: MySQL 8.0 (Docker)
-
----
-
-## 📂 프로젝트 구조
-
+## 프로젝트 구조
 ```
 guenchan-pyeonga/
-├── backend/
-│   ├── src/main/kotlin/com/example/
-│   │   ├── domain/          # 도메인 모델
-│   │   │   ├── user/
-│   │   │   ├── article/
-│   │   │   └── comment/
-│   │   ├── repository/      # 데이터 접근 계층
-│   │   ├── service/         # 비즈니스 로직
-│   │   ├── route/           # API 라우트
-│   │   ├── config/          # 설정 (DB, JWT, Exception)
-│   │   └── util/            # 유틸리티
-│   ├── build.gradle.kts
-│   └── Dockerfile
-├── frontend/
-│   ├── app/                 # Next.js App Router
-│   ├── components/          # React 컴포넌트
-│   ├── lib/                 # 유틸리티 함수
-│   ├── package.json
-│   └── Dockerfile
-├── docs/                    # 프로젝트 문서
-├── docker-compose.yml
+├── backend/                 # Ktor + Exposed + MySQL API
+├── frontend/                # Next.js (App Router) UI
+├── docs/                    # 문서 모음 (개편 기록 등)
+├── docker-compose.yml       # 전체 스택 기동
 └── README.md
 ```
 
 ---
 
-## 🔗 API 명세
+## 실행 방법
+### 1) Docker Compose (권장)
+```bash
+docker compose up -d --build
+```
+- 프론트: http://localhost:3000
+- 백엔드: http://localhost:8080
+- 헬스체크: `GET /health`
 
-### 인증 (Authentication)
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/signup` | 회원가입 | ❌ |
-| POST | `/api/auth/signin` | 로그인 | ❌ |
-
-### 게시글 (Articles)
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/articles?lastId={id}&size={size}` | 게시글 목록 조회 (커서 기반) | ❌ |
-| GET | `/api/articles/{id}` | 게시글 상세 조회 | ❌ |
-| POST | `/api/articles` | 게시글 작성 | ✅ |
-| PUT | `/api/articles/{id}` | 게시글 수정 | ✅ |
-| DELETE | `/api/articles/{id}` | 게시글 삭제 | ✅ |
-
-### 댓글 (Comments)
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/comments/article/{articleId}` | 댓글 목록 조회 (계층 구조) | ❌ |
-| POST | `/api/comments` | 댓글 작성 | ✅ |
-| DELETE | `/api/comments/{id}` | 댓글 삭제 (재귀적) | ✅ |
+### 2) 로컬 단독 실행
+- 백엔드: `cd backend && ./gradlew run`
+- 프론트: `.env.local`에 `NEXT_PUBLIC_API_URL=http://localhost:8080` 설정 후 `npm install && npm run dev`
 
 ---
 
-## 💻 로컬 실행 방법
+## API 요약
+- 인증: `POST /api/auth/signup`, `POST /api/auth/signin`
+- 게시글: `GET /api/articles?lastId&size`, `GET /api/articles/{id}`, `POST/PUT/DELETE /api/articles`
+- 댓글: `GET /api/comments/article/{articleId}`, `POST /api/comments`, `DELETE /api/comments/{id}`
 
-### 1. Docker Compose로 전체 실행 (권장)
+---
+
+## 기술 스택
+- **Backend**: Kotlin 2.2.x, Ktor 3.3.x, Exposed, MySQL 8, JWT, Coroutines
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Infra**: Docker, Docker Compose, HikariCP, Logback
+
+---
+
+## 변경 이력
+- 개편/배포/테스트 로그는 `docs/CHANGELOG_HOMEGROUND.md`와 `docs/DESIGN_IMPROVEMENTS.md`를 참고하세요.
 
 ```bash
 # 레포지토리 클론
@@ -267,7 +126,7 @@ MIT License
 
 ## 👤 개발자
 
-- **Name**: 허돈건
+- **Name**: 허동운
 - **GitHub**: [@heodongun](https://github.com/heodongun)
 - **Email**: heodongun@example.com
 

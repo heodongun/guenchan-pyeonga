@@ -3,6 +3,9 @@ package com.example
 import com.example.route.articleRoutes
 import com.example.route.authRoutes
 import com.example.route.commentRoutes
+import com.example.route.placeRoutes
+import com.example.route.eventRoutes
+import com.example.route.reservationRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -21,5 +24,8 @@ fun Application.configureRouting() {
         authRoutes()
         articleRoutes()
         commentRoutes()
+        placeRoutes()
+        eventRoutes()
+        reservationRoutes()
     }
 }
