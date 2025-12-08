@@ -164,32 +164,29 @@ export default function ArticleDetail() {
     return (
       <div
         key={comment.id}
-        className={`${comment.depth > 0 ? 'ml-6' : ''} mt-4`}
+        className={`${comment.depth > 0 ? 'ml-6 border-l border-brand-border pl-6' : ''} mt-4`}
       >
-        <div className="relative p-4 bg-white/80 border border-black/5 rounded-xl shadow-sm">
-          {comment.depth > 0 && (
-            <div className="absolute -left-4 top-5 h-[calc(100%-20px)] w-[2px] bg-gradient-to-b from-toss-blue/30 to-transparent rounded-full" />
-          )}
-          <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="rounded-xl border border-brand-border bg-white px-4 py-3 shadow-sm">
+          <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-toss-text">
-                {comment.isDeleted ? '알 수 없음' : comment.authorNickname}
+              <span className="text-sm font-semibold">
+                {comment.isDeleted ? '삭제된 사용자' : comment.authorNickname}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-brand-muted">
                 {new Date(comment.createdAt).toLocaleString()}
               </span>
             </div>
-            <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-toss-blue/10 text-toss-blue">
-              {comment.depth === 0 ? '루트' : `Depth ${comment.depth}`}
+            <span className="rounded-full border border-brand-border px-2 py-0.5 text-[11px] font-semibold text-brand-muted">
+              {comment.depth === 0 ? '원댓글' : `대댓글 ${comment.depth}`}
             </span>
           </div>
-          <p className="text-gray-700 mb-3 text-sm leading-relaxed">
+          <p className="mb-3 text-sm leading-relaxed text-brand-ink">
             {comment.isDeleted ? '삭제된 댓글입니다.' : comment.content}
           </p>
           {!comment.isDeleted && (
             <button
               onClick={() => setReplyTo(comment.id)}
-              className="text-xs font-semibold text-toss-blue hover:underline"
+              className="text-xs font-semibold text-brand-ink transition-colors hover:text-brand-accent"
             >
               답글 달기
             </button>
@@ -202,9 +199,9 @@ export default function ArticleDetail() {
 
   if (loading) {
     return (
-      <main className="min-h-screen p-5 bg-toss-bg flex items-center justify-center">
-        <div className="toss-card text-center">
-          <p className="text-toss-gray font-semibold">로딩 중입니다. 잠시만 기다려주세요.</p>
+      <main className="flex min-h-screen items-center justify-center bg-brand-bg p-5">
+        <div className="brand-card text-center">
+          <p className="text-brand-muted font-semibold">불러오는 중입니다. 잠시만 기다려주세요.</p>
         </div>
       </main>
     );
@@ -212,10 +209,10 @@ export default function ArticleDetail() {
 
   if (error || !article) {
     return (
-      <main className="min-h-screen p-5 bg-toss-bg flex items-center justify-center">
-        <div className="toss-card text-center">
-          <p className="text-red-500 font-semibold mb-4">{error || '게시글을 찾을 수 없습니다.'}</p>
-          <Link href="/" className="toss-button inline-block px-4 py-3 rounded-xl text-sm font-semibold">
+      <main className="flex min-h-screen items-center justify-center bg-brand-bg p-5">
+        <div className="brand-card text-center space-y-4">
+          <p className="text-red-600 font-semibold">{error || '게시글을 찾을 수 없습니다.'}</p>
+          <Link href="/" className="brand-button-ghost justify-center">
             목록으로 돌아가기
           </Link>
         </div>
@@ -224,96 +221,88 @@ export default function ArticleDetail() {
   }
 
   return (
-    <main className="min-h-screen p-5 bg-toss-bg pb-24">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <main className="min-h-screen bg-brand-bg p-6 pb-24">
+      <div className="mx-auto max-w-4xl space-y-8">
         <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-sm font-semibold text-toss-text px-3 py-2 rounded-full bg-white/80 border border-black/5 hover:-translate-y-0.5 transition-transform shadow-sm"
-          >
-            ← 목록으로
+          <Link href="/" className="muted-link">
+            &larr; 이야기 목록
           </Link>
-          <span className="pill">읽는 중</span>
+          <span className="brand-pill">동네 이야기</span>
         </div>
 
-        <article className="toss-card space-y-6">
-          <div className="space-y-3">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-toss-gray">Article</p>
-            <h1 className="text-3xl font-semibold text-toss-text leading-tight">{article.title}</h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-toss-gray">
-              <span className="px-3 py-1 rounded-full bg-toss-blue/10 text-toss-blue font-semibold">
-                {article.authorNickname}
-              </span>
-              <span className="text-toss-gray">작성 {new Date(article.createdAt).toLocaleString()}</span>
-              <span className="text-toss-gray">조회 {article.viewCount}</span>
+        <article className="brand-card space-y-8">
+          <div className="space-y-4 border-b border-brand-border pb-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-sm text-brand-muted">
+              <span className="font-semibold text-brand-ink">#{article.id.toString().padStart(4, '0')}</span>
+              <div className="flex flex-wrap items-center gap-3">
+                <span>{new Date(article.createdAt).toLocaleString()}</span>
+                <span>조회 {article.viewCount}</span>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold leading-tight sm:text-4xl">{article.title}</h1>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-accent-soft font-bold text-brand-ink">
+                {article.authorNickname.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-semibold text-brand-ink">{article.authorNickname}</span>
             </div>
           </div>
 
-          <div className="prose max-w-none mb-4 text-gray-800 leading-relaxed">
+          <div className="text-base leading-relaxed text-brand-ink">
             <p className="whitespace-pre-wrap">{article.content}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm text-toss-gray">
-            <div className="rounded-2xl border border-black/5 bg-white/80 px-4 py-3 shadow-sm">
-              <p className="text-[11px] uppercase tracking-[0.12em]">작성</p>
-              <p className="font-semibold text-toss-text">{new Date(article.createdAt).toLocaleString()}</p>
-            </div>
-            <div className="rounded-2xl border border-black/5 bg-white/80 px-4 py-3 shadow-sm">
-              <p className="text-[11px] uppercase tracking-[0.12em]">최종 수정</p>
-              <p className="font-semibold text-toss-text">{new Date(article.updatedAt).toLocaleString()}</p>
-            </div>
-          </div>
-
-          <div className="flex justify-end border-t border-black/5 pt-6">
+          <div className="flex justify-end pt-4">
             <button
               onClick={handleDelete}
-              className="text-sm font-semibold text-red-500 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
+              className="text-sm font-semibold text-brand-muted transition-colors hover:text-red-600"
             >
-              삭제하기
+              글 삭제하기
             </button>
           </div>
         </article>
 
-        <section className="toss-card">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-toss-text">댓글 <span className="text-toss-blue">{comments.length}</span></h2>
-            <span className="text-xs text-toss-gray">맥락을 잇는 짧은 생각들</span>
+        <section className="brand-card space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold">댓글 {comments.length}</h2>
           </div>
 
-          <form onSubmit={handleSubmitComment} className="mb-8 bg-white/70 p-4 rounded-xl border border-black/5 shadow-sm">
+          <form onSubmit={handleSubmitComment} className="space-y-4">
             {replyTo && (
-              <div className="mb-3 text-sm text-gray-600 flex justify-between items-center bg-white px-3 py-2 rounded-lg border border-black/5">
-                <span className="font-semibold">답글 작성 중...</span>
+              <div className="flex items-center justify-between rounded-lg border border-brand-border bg-brand-accent-soft/60 px-4 py-2 text-sm text-brand-ink">
+                <span>대댓글을 작성 중입니다.</span>
                 <button
                   type="button"
                   onClick={() => setReplyTo(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="font-semibold hover:text-brand-accent"
                 >
                   ✕
                 </button>
               </div>
             )}
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="짧고 선명하게 남겨보세요."
-                rows={2}
-                className="flex-1 px-4 py-3 border-none rounded-xl focus:ring-0 bg-transparent resize-none placeholder-gray-400 text-toss-text"
+                placeholder="운영 노하우나 궁금한 점을 남겨주세요."
+                rows={3}
+                className="flex-1 rounded-xl border border-brand-border bg-white px-4 py-3 text-brand-ink placeholder:text-brand-muted/70 focus:border-brand-accent focus:outline-none focus:ring-2 focus:ring-brand-accent/30 transition resize-none"
                 required
               />
               <button
                 type="submit"
-                className="toss-button px-4 py-3 rounded-xl font-semibold whitespace-nowrap h-fit self-end shadow-md hover:shadow-lg transition"
+                className="brand-button h-fit whitespace-nowrap px-5 py-3"
               >
-                등록
+                댓글 등록
               </button>
             </div>
           </form>
 
-          <div className="space-y-2">
+          <div className="space-y-6">
             {comments.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">첫 번째 댓글을 남겨보세요.</p>
+              <div className="rounded-xl border border-dashed border-brand-border px-4 py-10 text-center text-brand-muted">
+                아직 댓글이 없습니다. 첫 의견을 남겨보세요.
+              </div>
             ) : (
               comments.map((comment) => renderComment(comment))
             )}

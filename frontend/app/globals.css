@@ -2,81 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
-
-:root {
-  --background: #f7f5ef;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --muted: #6b7280;
-  --accent: #0ea5e9;
-  --accent-strong: #f59e0b;
-  --border: rgba(15, 23, 42, 0.08);
-  --shadow: 0 25px 60px rgba(15, 23, 42, 0.1);
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-ink antialiased;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background:
-    radial-gradient(circle at 12% 20%, rgba(14, 165, 233, 0.12), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(245, 158, 11, 0.14), transparent 25%),
-    radial-gradient(circle at 60% 70%, rgba(14, 165, 233, 0.08), transparent 30%),
-    var(--background);
-  font-family: "Space Grotesk", "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer components {
+  .brand-card {
+    @apply relative overflow-hidden rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .brand-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink px-5 py-3 font-semibold text-white shadow-md transition-all duration-200 hover:bg-brand-ink/90 hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .brand-button-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-brand-border bg-white/80 px-5 py-3 font-semibold text-brand-ink backdrop-blur-sm transition-all duration-200 hover:border-brand-ink hover:-translate-y-0.5 hover:shadow-md;
+  }
+
+  .brand-pill {
+    @apply inline-flex items-center gap-2 rounded-full bg-brand-accent-soft px-3 py-1 text-xs font-semibold text-brand-ink border border-brand-border;
+  }
+
+  .muted-link {
+    @apply text-sm font-medium text-brand-muted hover:text-brand-ink transition-colors;
+  }
 }
 
-/* Elevated surface */
-.toss-card {
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.92);
-  border-radius: 22px;
-  padding: 26px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.toss-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(245, 158, 11, 0.06));
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  pointer-events: none;
+::-webkit-scrollbar-track {
+  background: #f0e8db;
 }
 
-.toss-card:hover::before {
-  opacity: 1;
+::-webkit-scrollbar-thumb {
+  background: #d5c7b5;
+  border-radius: 4px;
 }
 
-/* Accent button */
-.toss-button {
-  background: linear-gradient(120deg, var(--accent), #1397d8);
-  color: #f8fafc;
-  border-radius: 12px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  box-shadow: 0 15px 30px rgba(14, 165, 233, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+::-webkit-scrollbar-thumb:hover {
+  background: #c3b59f;
 }
 
-.toss-button:active {
-  transform: translateY(1px);
-  opacity: 0.9;
+/* React Calendar Custom Styles */
+.react-calendar {
+  width: 100%;
+  border: none !important;
+  font-family: inherit;
 }
 
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: rgba(14, 165, 233, 0.12);
-  color: #0369a1;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+.react-calendar__tile {
+  @apply rounded-lg p-3 text-sm font-medium transition-colors;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  @apply bg-brand-accent-soft;
+}
+
+.react-calendar__tile--active {
+  @apply bg-brand-accent text-white;
+}
+
+.react-calendar__tile--now {
+  @apply bg-brand-accent-soft font-bold;
+}
+
+.react-calendar__navigation button {
+  @apply rounded-lg p-2 font-semibold hover:bg-brand-accent-soft transition-colors;
+}
+
+.react-calendar__month-view__weekdays {
+  @apply text-sm font-semibold text-brand-muted;
 }

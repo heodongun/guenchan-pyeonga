@@ -21,6 +21,7 @@ export default function NewArticle() {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('로그인이 필요합니다.');
+        setLoading(false);
         return;
       }
 
@@ -48,34 +49,31 @@ export default function NewArticle() {
   };
 
   return (
-    <main className="min-h-screen p-5 bg-toss-bg pb-24">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <Link
-            href="/"
-            className="text-sm font-semibold text-toss-text px-3 py-2 rounded-full bg-white/80 border border-black/5 hover:-translate-y-0.5 transition-transform shadow-sm"
-          >
-            ← 돌아가기
+    <main className="min-h-screen bg-brand-bg p-6 pb-24">
+      <div className="mx-auto max-w-3xl space-y-8">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="muted-link">
+            &larr; 홈으로 돌아가기
           </Link>
-          <span className="pill">새 글</span>
+          <span className="brand-pill">동네 이야기 작성</span>
         </div>
 
-        <div className="toss-card mb-6">
-          <div className="mb-6 space-y-2">
-            <p className="text-[11px] uppercase tracking-[0.16em] text-toss-gray">Writer mode</p>
-            <h1 className="text-3xl font-semibold text-toss-text">새로운 이야기를 시작하세요</h1>
-            <p className="text-sm text-toss-gray">핵심만 간결하게, 읽는 사람이 바로 행동할 수 있게.</p>
+        <div className="brand-card">
+          <div className="mb-8 space-y-2 border-b border-brand-border pb-6">
+            <p className="text-sm text-brand-muted">운영 기록과 후기를 공유하세요</p>
+            <h1 className="text-3xl font-bold">이웃들과 이야기 나누기</h1>
+            <p className="text-sm text-brand-muted">공간 운영 경험, 모임 후기, 동네 질문까지 자유롭게 남길 수 있습니다.</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm font-semibold border border-red-100">
+            <div className="bg-red-50 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm font-semibold border border-red-100">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="title" className="block text-toss-text text-sm font-semibold">
+              <label htmlFor="title" className="block text-sm font-semibold text-brand-ink">
                 제목
               </label>
               <input
@@ -84,13 +82,13 @@ export default function NewArticle() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-xl bg-white/80 border border-black/5 focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 text-lg font-medium shadow-sm"
-                placeholder="독자를 멈춰 세울 한 문장"
+                className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-lg font-medium text-brand-ink placeholder:text-brand-muted/70 focus:border-brand-accent focus:outline-none focus:ring-2 focus:ring-brand-accent/30 transition"
+                placeholder="예) 주방 예약 팁을 정리해봤어요"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="content" className="block text-toss-text text-sm font-semibold">
+              <label htmlFor="content" className="block text-sm font-semibold text-brand-ink">
                 내용
               </label>
               <textarea
@@ -99,22 +97,22 @@ export default function NewArticle() {
                 onChange={(e) => setContent(e.target.value)}
                 required
                 rows={14}
-                className="w-full px-4 py-3 rounded-xl bg-white/80 border border-black/5 focus:bg-white focus:border-toss-blue focus:outline-none transition-all text-toss-text placeholder-gray-400 resize-none shadow-sm"
-                placeholder="핵심 요약 → 근거 → 한 줄 의견 순으로 적어보세요."
+                className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-brand-ink placeholder:text-brand-muted/70 focus:border-brand-accent focus:outline-none focus:ring-2 focus:ring-brand-accent/30 transition resize-none"
+                placeholder="운영 노하우, 후기, 질문을 적어주세요."
               />
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4 pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 min-w-[160px] toss-button py-4 text-lg disabled:bg-gray-300 disabled:cursor-not-allowed text-center shadow-md hover:shadow-lg transition"
+                className="flex-1 min-w-[160px] brand-button py-4 text-base font-bold text-center disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {loading ? '작성 중...' : '작성하기'}
+                {loading ? '등록 중...' : '글 올리기'}
               </button>
               <Link
                 href="/"
-                className="flex-1 min-w-[160px] bg-white/80 text-toss-text border border-black/5 rounded-xl py-4 text-lg font-medium hover:-translate-y-0.5 transition-transform text-center shadow-sm"
+                className="flex-1 min-w-[160px] brand-button-ghost py-4 text-base font-semibold text-center"
               >
                 취소
               </Link>
